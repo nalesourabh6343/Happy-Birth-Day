@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- This code is automatic play music -->
+<!-- http://127.0.0.1:5500/index%204.html?music=modern&name=Swapnil -->
+<!-- With Attractive animation of text style -->
 
 <head>
     <meta charset="UTF-8">
@@ -110,17 +113,38 @@
 
 
     <audio id="birthdayMusic" loop>
-        <source src="music/happy-birthday-2.mp3" type="audio/mpeg">
+        <source id="musicSource" src="music/happy-birthday-2.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
     <canvas id="birthday"></canvas>
 
     <script>
+        function getMusicFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const musicType = urlParams.get('music') || "classic"; // Default to modern version
+
+            // Map music types to file names
+            const musicFiles = {
+                "classic": "happy-birthday-1.mp3",
+                "modern": "happy-birthday-2.mp3"
+            };
+
+            // Get the file name, default to modern if invalid type
+            const fileName = musicFiles[musicType] || musicFiles["modern"];
+            return `music/${fileName}`;
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const music = document.getElementById('birthdayMusic');
+            const musicSource = document.getElementById('musicSource');
             let isPlaying = false; // Track play/pause state
 
+            // Set the music source based on URL parameter
+            musicSource.src = getMusicFromURL();
+            music.load(); // Reload the audio element with new source
+
+            // Function to play music
             function playMusic() {
                 if (!isPlaying) {
                     music.play().then(() => {
@@ -131,6 +155,7 @@
                 }
             }
 
+            // Function to toggle music
             function toggleMusic() {
                 if (music.paused) {
                     music.play();
@@ -141,7 +166,7 @@
                 }
             }
 
-            // Try autoplay (browsers might block it)
+            // Try autoplay when page loads
             playMusic();
 
             // Allow user to toggle music on click
@@ -150,36 +175,15 @@
             // Ensure seamless looping when the song ends
             music.addEventListener('ended', () => {
                 music.currentTime = 0; // Restart from beginning
-                music.play();
+                if (isPlaying) { // Only play if music was playing before
+                    music.play();
+                }
             });
         });
     </script>
 
 
     <script>
-        // Auto-play music when the page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            const music = document.getElementById('birthdayMusic');
-
-            function playMusic() {
-                music.play().catch(error => {
-                    console.log("Autoplay failed. User interaction required.");
-                });
-            }
-
-            // Try to autoplay immediately
-            playMusic();
-
-            // In case autoplay fails, try again after user clicks anywhere
-            document.addEventListener('click', playMusic, { once: true });
-
-            // Reduce delay between song repetitions
-            music.addEventListener('ended', () => {
-                music.currentTime = 0; // Restart immediately
-                music.play();
-            });
-        });
-
         const PI2 = Math.PI * 2;
         const random = (min, max) => Math.random() * (max - min + 1) + min | 0;
         const timestamp = () => new Date().getTime();
@@ -290,7 +294,6 @@
             birthday.update(delta / 1000);
         })();
     </script>
-
 
 
     <script>
